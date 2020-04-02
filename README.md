@@ -100,3 +100,153 @@ For languages that can source chunks of code:
     - `\f` to send the entire file to the interpreter.
 
 
+## Setting up a virtual environment (env)
+### In a nutshell
+> A virtual environment (aka `env`) is a self-contained local configuration of the basic software (compilers, interpreters, and packages) build-up for a specific use.
+
+This is useful for:
+1. **To circumvent outdated libraries from the cluster.** For instance, the GCC compiler is outdated, which is required to compile third-party packages. You are going to face similar issues with JAVA (old v1.6), R (old v3.5). Using `env` you can use an updated compiler to complete the installation of your whole pipeline.
+2. **To use different versions of basic environments (R, python).** For instance, some python programs require python 2.7, while other require python 3.0+. You may need to use both versions within a project.
+3. **To keep independent configurations for different projects along time.** One research project lasts for years and overlap along time with other ongoing projects. `env` allows you to isolate software configurations across them, so updating packages for one project does not interfere with the settings from other projects.
+4. **Share your configuration with collaborators.** You can clone your `env` and share it with your colleagues, so they could reproduce your analysis.
+
+### Installing miniconda3
+`miniconda3` is the framework to create and manage `envs`.
+Before starting to work with virtual environments (`envs`), you need to install `miniconda3`. **This is done only once**.
+
+Download the installer of `miniconda3`
+```
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+```
+Create a directory where you are going to install your SOFTWARE
+inside your working folder in the cluster
+
+```
+mkdir /home/$USER/SOFTWARE/
+```
+
+Run the installer and define the installation path. See below.
+```
+bash Miniconda3-latest-Linux-x86_64.sh
+
+# Press <ENTER> to continue an read Miniconda License
+# Go down and enter 'yes' to accept Miniconda License
+# Importantly! Miniconda2 will be installed into the default location,
+# that is your $HOME. However, there is no space in your $HOME at BioQuant.
+# Thus, specify another location. For instance:
+#	/home/<username>/SOFTWARE/miniconda3
+# run conda init when asked during the installation
+```
+If you didnt run `conda init` during the installation, this is a good time to do so. This will make changes into your `~/.bashrc` file needed to setup the conda environment when needed.
+
+Remove the installer
+```
+rm Miniconda3-latest-Linux-x86_64.sh
+```
+
+### How to use envs
+Basically you have to activate the `env` to work with, and deactivate it when you have finished your work.
+Since the changes made in the `~/.bashrc` file will take effect only after restart (which doesn't happen very often), to apply the changes you need to run
+
+```
+source ~./.bashrc
+```
+This will start a new bash environment with all profile and path settings needed for conda applied.
+
+To activate an environment,
+```
+conda activate <env_name>
+```
+
+To deactivate it,
+```
+conda deactivate <env_name>
+```
+
+By default, you start with an `env` called `base`. You may give try with it.   
+You can also [create new `envs`](#Creating-envs) with your specific configuration.
+
+**Detailed documentation for Conda**  : [further reading](https://docs.conda.io/projects/conda/en/latest/index.html)
+
+### Conda channels and recipes
+Conda recipes are predefined list of packages with their corresponding dependencies ready to be installed at once in an existing or a new `env`.
+
+There are several repositories (`channels`) throughby you can install these recipes. For instance, [bioconda](https://bioconda.github.io/index.html).
+
+Some useful channels that you may add to your configuration are:
+```
+conda config --add channels conda-forge
+conda config --add channels bioconda
+conda config --add channels r
+```
+
+See the next section to understand how these channels can be useful.
+
+### Creating envs
+Simply use
+```
+conda create -n <env_name> <recipe_1> <recipe_2> [...]
+```
+
+Where `<env_name>` is a short and unique name for the environment. And `<recipe_N>` is a recipe name from a channel.
+
+Recommendation:
+> Use as many recipes as you can from the channels. These are shortcuts to install the package/software with all the dependencies. All bioconductor packages have a recipe...
+
+How-To find recipes:
+> You can google `conda <package_name> recipe`. Probably the 1st hit is a recipe from one of the channels (see [Conda channels and recipes](#Conda-channels-and-recipes)).
+
+What if I cannot find a recipe for the package:
+> Then you have to install the `env` with the basics so far (e.g. R environment version 3.6, and other libraries and dependencies). Next install the package manually with `env` activated (see [Installing software](#Installing-software) ). You can do this even without running an interactive session on the cluster.
+
+### Installing software in an env
+You can install natively software at the same time that you create an `env`. This is very convenient. See [Creating a virtual environment](#Creating-a-virtual-environment).
+
+To install manually any package in the `env`, first you have to activate it
+```
+conda activate <env_name>
+
+# See that the terminal prompt will show the <env_name>
+#   that means it is active
+```
+When an `env` is activated, some bash environment variables are updated/created:
+* `$PATH` - and other bash variables are updated. Thus the priority path to installed binary programs changes, so the binary ones from the `env` are going to be used in preference to the others installed outside of the `env`
+* `$CONDA_PREFIX` is a new bash environment variable. `$CONDA_PREFIX` points out to the absolute to the local installation of the programs within the `env`.
+
+#### Quick-guide:
+Note that this is an example for `R` packages, but similarly for other languages (python, java, etc).
+
+1. Activate the `env`
+```
+conda activate <env_name>
+```
+2. Start `R enviroment` inside the `env`:
+```
+$CONDA_PREFIX/bin/R
+```
+3. Install your package as usual (inside `R`). See [Installing R packages](#Installing-R-packages) for detailed information. You can do this even without running an interactive session on the cluster.
+
+### Using an env when submitting jobs
+You have to consider two key points here:
+* When you submit a job to the cluster, the cluster node starts a new session in UNIX with default settings.
+* There are different binaries installed locally in the node. You may prefer to use one in particular. For that, you have to specify which one.
+
+Thus you have include them in your PBS script :
+1. Activate the `env` before running your script, adding the following line just after the header
+```
+conda activate <env_name>
+```
+Do not forget to add `exec bash` before this line to setup the conda environment, if the changes to the bash environment are still not automatically applied.
+
+2. [Optional] Specify the local program to run your script from the `env` in order to avoid misinterpretations. For instance, for an R script:
+
+```
+# Use this one  
+$CONDA_PREFIX/bin/Rscript <your_script.R>  
+
+# ... Instead of   
+Rscript <your_script.R>  
+
+```
+
+
