@@ -23,22 +23,8 @@ IDE for `R` and `python` below:
 ![IDE_R](https://raw.githubusercontent.com/jalvesaq/Nvim-R/master/Nvim-R.gif)
 
 ### IDE Basics installation   
-A pre-requisite is to have already set-up virtual enviroments powered by
-miniconda. To do so, please visit [Setting up a virtual environment (env)](#Setting-up-a-virtual-environment-(env)).
-
-Next, install the basics in your `base (virtual enviroment)` using:
-```bash
-conda install -c conda-forge tmux neovim
-```
-> Note: `neovim` is the package name, but to execute it just type `nvim`.
-
-And start `nvim` for the first time:
-```bash
-conda activate base
-nvim
-# you can quit using ':q'
-```
-Finally, you will need to install some plugins for `nvim`. To initiate the
+The program [`nvim`](https://neovim.io) is a requirement to be installed in the local/remote machine.
+Then, you will need to install some plugins for `nvim`. To initiate the
 config of `nvim`, create the following directory if it does not exist yet:
 ```
 if[ ! -e $HOME/.config/nvim ];then
