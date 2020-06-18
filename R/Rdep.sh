@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # src: https://github.com/mschubert/ebits/blob/master/dependencies.sh
-scripts=$(find . -name "*.r" -o -name "*.R")
+function Rdep {
+scripts=$(find $1 -name "*.r" -o -name "*.R")
 content=$(echo $scripts | xargs cat)
 
 regex=(
@@ -14,3 +15,5 @@ regex=(
 combined=$(printf "%s" "${regex[@]}")
 
 echo $content | tr -d "'\"" | grep -o -P "$combined" | sort | uniq
+
+}
