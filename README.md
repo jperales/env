@@ -85,6 +85,63 @@ For languages that can source chunks of code:
     - `\b` to send block of code between the two closest marks.
     - `\f` to send the entire file to the interpreter.
 
+## GitHub as a command-line client
+>NOTE: official website https://cli.github.com
+Depending on Linux and user permisions, you could follow to alternatives:
+
+- A) If root user, install it from official sources using apt-get install in Ubuntu, more details in https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-apt
+
+``` bash
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+sudo apt-add-repository https://cli.github.com/packages
+sudo apt update
+sudo apt install gh
+# If any error, follow the link above
+```
+
+- B) If no root user, compile it for local user usage. It is far more complicated:
+
+```bash
+# Setting `go` intepreter for compilation
+#  Assuming you have a var in bash environment with such as,
+#  export SOFTWARE_LOCAL="/beegfs/work/$USER/SOFTWARE"
+
+# 1. Download `go`
+wget -O $SOFTWARE_LOCAL/go1.15.2.linux-amd64.tar.gz https://golang.org/dl/go1.15.2.linux-amd64.tar.gz
+# SHA256 Checksum: b49fda1ca29a1946d6bb2a5a6982cf07ccd2aba849289508ee0f9918f6bb4552
+# 2. Extract `go` as a local installation (src: https://golang.org/doc/install)
+test -d $SOFTWARE_LOCAL/go1.15.2 || mkdir $SOFTWARE_LOCAL/go1.15.2
+tar -C $SOFTWARE_LOCAL/go1.15.2 -xzf  $SOFTWARE_LOCAL/go1.15.2.linux-amd64.tar.gz
+# 3. Export it
+# alias go='$SOFTWARE_LOCAL/go1.15.2/go/bin/go'
+export PATH=$PATH:$SOFTWARE_LOCAL/go1.15.2/go/bin
+# Test it
+go -version
+
+# Compile gh program from source
+# 1. Clone repository
+git clone https://github.com/cli/cli.git gh-cli
+cd gh-cli
+
+# 2. Build
+make
+
+# 3. Move the resulting bin/gh executable to somewhere in your PATH or create alias
+# sudo mv ./bin/gh /usr/local/bin/
+alias gh='$SOFTWARE_LOCAL/gh-cli/bin/gh'
+# Test it
+gh version
+```
+Finally, create a auth TOKEN following `Settings> Developer settings > Personal access tokens`.
+Add the following permisions (at least, to be cross-checked with official doc):
+- admin:org
+- delete:packages
+- delete_repo
+- repo
+- workflow
+- write:packages
+
+use `gh auth login` > choose Github.com & token auth. Paste it
 
 ## Setting up a virtual environment (env)
 ### In a nutshell
@@ -236,3 +293,18 @@ Rscript <your_script.R>
 ```
 
 
+## TIME tracking for projects
+I am using Watson (poewred by tailor-dev team) at https://tailordev.github.io/Watson/ . 
+
+- Github: https://github.com/TailorDev/Watson
+- User-Guide commands: https://tailordev.github.io/Watson/user-guide/commands/
+
+How to install:
+```bash
+pip install td-watson
+```
+
+Then,
+```bash
+watson help
+```
